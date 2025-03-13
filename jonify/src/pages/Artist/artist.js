@@ -17,7 +17,7 @@ const Artist = () => {
         });
 
         const dataq = await result.json();
-        setResponseData(data.message);
+        setResponseData(dataq.message);
         fetchArtists();
     };
 
@@ -36,7 +36,7 @@ const Artist = () => {
         const result = await fetch(`http://localhost:3001/artists/${selectedArtist.id}`, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: artistName});
+            body: JSON.stringify({name: artistName}),
         });
         const data = await result.json();
         setResponseData(data.message);
