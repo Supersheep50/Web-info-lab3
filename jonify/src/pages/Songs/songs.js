@@ -13,7 +13,11 @@ const Songs = () => {
         const result = await fetch('http://localhost:3001/songs', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: songName})   
+            body: JSON.stringify({
+                name: songName,
+                release_year: songYear,
+                album_id: selectedAlbumId  // Ensure you have this value
+            })   
         });
 
         const dataq = await result.json();

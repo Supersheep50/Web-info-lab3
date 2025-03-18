@@ -8,12 +8,17 @@ exports.getAllArtists = (req, res) => {
 };
 
 exports.createArtist = (req, res) => {
+    console.log("Received request to create artist:", req.body); // Debugging
     const { name, monthly_listeners, genre } = req.body;
     const sql = 'INSERT INTO artists (name, monthly_listeners, genre) VALUES (?, ?, ?)';
     connection.query(sql, [name, monthly_listeners, genre], (err, results) => {
-        if (err) return res.status(500).json({ message: 'Error inserting artist' });
+        if (err) {
+            console.error("Error inserting artist:", err);  // Log the full error
+            return res.status(500).json({ message: 'Error inserting artist', error: err });
+        }
         res.status(200).json({ message: 'Artist inserted' });
     });
+    
 };
 
 exports.updateArtist = (req, res) => {

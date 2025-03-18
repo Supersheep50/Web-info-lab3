@@ -1,98 +1,116 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Albums = () => {
     const [albumName, setAlbumName] = useState('');
     const [albums, setAlbums] = useState([]);
     const [selectedAlbum, setSelectedAlbum] = useState(null);
     const [responseData, setResponseData] = useState('');
+    const [releaseYear, setReleaseYear] = useState('');
+    const [artistId, setArtistId] = useState('');
+    const [artists, setArtists] = useState([]);
 
-    // create an album / post request
-
-    const handleCreateAlbum = async () => {
-        const result = await fetch('http://localhost:3001/albums', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: albumName})   
-        });
-
-        const dataq = await result.json();
-        setResponseData(dataq.message);
-        fetchAlbums();
-
+    // Fetch artists for the dropdown
+    const fetchArtists = async () => {
+        const result = await fetch('http://localhost:3001/artists');
+        const data = await result.json();
+        setArtists(data);
     };
 
-    // function to retrieve albums (GET request)
-
+    // Fetch albums
     const fetchAlbums = async () => {
         const result = await fetch('http://localhost:3001/albums');
         const data = await result.json();
         setAlbums(data);
     };
 
-    // function to update an album (PUT request)
+    // Runs on page load
+    useEffect(() => {
+        fetchAlbums();
+        fetchArtists();
+    }, []);
+
+    // Create an album
+    const handleCreateAlbum = async () => {
+        const result = await fetch('http://localhost:3001/albums', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: albumName,
+                artist_id: artistId,
+                release_year: releaseYear,
+                num_listens: 0,
+                songs: []
+            })
+        });
+
+        const dataq = await result.json();
+        setResponseData(dataq.message);
+        fetchAlbums();
+    };
+
+    // Update an album
     const handleUpdateAlbum = async () => {
-        if(!selectedAlbum) return;
+        if (!selectedAlbum) return;
         const result = await fetch(`http://localhost:3001/albums/${selectedAlbum.id}`, {
             method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: albumName}),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: albumName }),
         });
+
         const data = await result.json();
         setResponseData(data.message);
         fetchAlbums();
         setSelectedAlbum(null);
     };
 
-    // function to delete an album (DELETE request)
-
+    // Delete an album
     const handleDeleteAlbum = async (id) => {
         const result = await fetch(`http://localhost:3001/albums/${id}`, {
             method: 'DELETE',
         });
+
         const data = await result.json();
         setResponseData(data.message);
         fetchAlbums();
     };
 
-    // fetch albums when the page loads
-
-    useEffect(() => {
-        fetchAlbums();
-    }   , []);
-
     return (
         <div>
-        <h1>Albums</h1>
+            <h1>Albums</h1>
 
-        {/* input feild for album name */}
+            {/* Input fields */}
+            <input type="text" value={albumName} onChange={(e) => setAlbumName(e.target.value)} placeholder="Enter Album name" />
+            <input type="text" value={releaseYear} onChange={(e) => setReleaseYear(e.target.value)} placeholder="Enter Release Year" />
 
-        <input type = "text" value = {albumName} onChange = {(e) => setAlbumName(e.target.value)} placeholder='Enter Album name'/>
+            {/* Artist dropdown */}
+            <label>Pick an Artist:</label>
+            <select value={artistId} onChange={(e) => setArtistId(e.target.value)}>
+                <option value="">Select an artist</option>
+                {artists.map((artist) => (
+                    <option key={artist.id} value={artist.id}>{artist.name}</option>
+                ))}
+            </select>
 
-        {/* crud buttons */}
+            {/* CRUD Buttons */}
+            <button onClick={handleCreateAlbum}>Create Album</button>
+            {selectedAlbum && <button onClick={handleUpdateAlbum}>Update Album</button>}
+            <button onClick={fetchAlbums}>Fetch Albums</button>
 
-        <button onClick = {handleCreateAlbum}>Create Album</button>
-        {selectedAlbum && <button onClick = {handleUpdateAlbum}>Update Album</button>}
-        <button onClick = {fetchAlbums}>Fetch Albums</button>
+            {/* Display response messages */}
+            <div> Response: {responseData} </div>
 
-        {/* display response messages */}
-
-        <div> Response: {responseData} </div>
-
-        {/* list of albums with update and delete buttons */}
-
-        <div>
-            {albums.map((album) => (
-                <div key = {album.id}>
-                    <h3>{album.name}</h3>
-                    <button onClick = {() => setSelectedAlbum(album)}>Edit</button>
-                    <button onClick = {() => handleDeleteAlbum(album.id)}>Delete</button>
-                </div>
-            ))}
+            {/* List of albums with edit and delete buttons */}
+            <div>
+                {albums.map((album) => (
+                    <div key={album.id}>
+                        <h3>{album.name}</h3>
+                        <button onClick={() => setSelectedAlbum(album)}>Edit</button>
+                        <button onClick={() => handleDeleteAlbum(album.id)}>Delete</button>
+                    </div>
+                ))}
+            </div>
         </div>
-        </div>
-        
     );
 };
 
 export default Albums;
-    

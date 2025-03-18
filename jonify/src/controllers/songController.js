@@ -8,13 +8,19 @@ exports.getAllSongs = (req, res) => {
 };
 
 exports.createSong = (req, res) => {
-    const { name, release_date, genre } = req.body;
-    const sql = 'INSERT INTO songs (name, release_date, genre) VALUES (?, ?, ?)';
-    connection.query(sql, [name, release_date, genre], (err, results) => {
-        if (err) return res.status(500).json({ message: 'Error inserting song' });
+    const { name, release_year, album_id } = req.body;
+    if (!name || !release_year || !album_id) {
+        return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const sql = 'INSERT INTO songs (name, release_year, album_id) VALUES (?, ?, ?)';
+    connection.query(sql, [name, release_year, album_id], (err, results) => {
+        if (err) return res.status(500).json({ message: 'Error inserting song', error: err });
+
         res.status(200).json({ message: 'Song inserted' });
     });
 };
+
 
 exports.updateSong = (req, res) => {
     const { name, release_date, genre } = req.body;

@@ -8,13 +8,19 @@ exports.getAllAlbums = (req, res) => {
 };
 
 exports.createAlbum = (req, res) => {
-    const { name, release_date, genre } = req.body;
-    const sql = 'INSERT INTO albums (name, release_date, genre) VALUES (?, ?, ?)';
-    connection.query(sql, [name, release_date, genre], (err, results) => {
-        if (err) return res.status(500).json({ message: 'Error inserting album' });
+    const { name, artist_id, release_year, num_listens, songs } = req.body;
+    if (!name || !artist_id || !release_year) {
+        return res.status(400).json({ message: "Missing required fields" });
+    }
+    
+    const sql = 'INSERT INTO albums (name, artist_id, release_year, num_listens) VALUES (?, ?, ?, ?)';
+    connection.query(sql, [name, artist_id, release_year, num_listens || 0], (err, results) => {
+        if (err) return res.status(500).json({ message: 'Error inserting album', error: err });
+
         res.status(200).json({ message: 'Album inserted' });
     });
 };
+
 
 exports.updateAlbum = (req, res) => {
     const { name, release_date, genre } = req.body;

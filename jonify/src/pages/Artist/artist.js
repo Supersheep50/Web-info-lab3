@@ -13,7 +13,11 @@ const Artist = () => {
         const result = await fetch('http://localhost:3001/artists', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: artistName})   
+            body: JSON.stringify({
+                name: artistName,
+                monthly_listeners: 0,  // Default value
+                genre: "Unknown"
+            })   
         });
 
         const dataq = await result.json();
