@@ -20,6 +20,26 @@ exports.getAllArtists = (req, res) => {
     });
 };
 
+exports.getArtistByName = (req, res) => {
+    const artistName = req.params.name; // Get artist name from URL
+    const query = `SELECT * FROM artists WHERE name = ?`;
+
+    connection.query(query, [artistName], (err, results) => {
+        if (err) {
+            console.error("Error fetching artist:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "Artist not found" });
+        }
+
+        res.json(results);
+    });
+};
+
+
+
 
 
 
@@ -38,14 +58,21 @@ exports.createArtist = (req, res) => {
 };
 
 exports.updateArtist = (req, res) => {
-    const { name, monthly_listeners, genre } = req.body;
-    const { id } = req.params;
-    const sql = 'UPDATE artists SET name = ?, monthly_listeners = ?, genre = ? WHERE id = ?';
-    connection.query(sql, [name, monthly_listeners, genre, id], (err, results) => {
-        if (err) return res.status(500).json({ message: 'Error updating artist' });
-        res.status(200).json({ message: 'Artist updated' });
+    const { name, genre, monthly_listeners } = req.body;
+    const artistId = req.params.id;
+
+    const sql = `UPDATE artists 
+                 SET name = ?, genre = ?, monthly_listeners = ? 
+                 WHERE id = ?`;
+
+    connection.query(sql, [name, genre, monthly_listeners, artistId], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: "Error updating artist", error: err });
+        }
+        res.status(200).json({ message: "Artist updated successfully" });
     });
 };
+
 
 exports.deleteArtist = (req, res) => {
     const { id } = req.params;

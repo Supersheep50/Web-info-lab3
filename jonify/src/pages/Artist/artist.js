@@ -29,31 +29,62 @@ const Artist = () => {
     // function to retrieve artists (GET request)
 
     const fetchArtists = async () => {
+        console.log("Fetching artists...");
         let url = 'http://localhost:3001/artists';
         if (artistName.trim() !== '') {
-            url += `?name=${encodeURIComponent(artistName)}`;
+            url += `/search/${encodeURIComponent(artistName)}`;
         }
     
-        const result = await fetch(url);
-        const data = await result.json();
-        setArtists(data);
+        try {
+            const response = await fetch(url);
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                setResponseData(errorData.message || "An error occurred.");
+                setArtists([]); // Clear list when no artist found
+                return;
+            }
+    
+            const data = await response.json();
+            setArtists(data);
+            setResponseData(""); // Clear previous messages if successful
+        } catch (error) {
+            console.error("Error fetching artist:", error);
+            setResponseData("An error occurred while fetching the artist.");
+        }
     };
+    
+    
+    
+    
+
+    useEffect(() => {
+        console.log("Artists state updated:", artists);
+    }, [artists]);
+    
     
     
 
     // function to update an artist (PUT request)
     const handleUpdateArtist = async () => {
-        if(!selectedArtist) return;
+        if (!selectedArtist) return;
+    
         const result = await fetch(`http://localhost:3001/artists/${selectedArtist.id}`, {
             method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: artistName}),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: artistName, 
+                genre: selectedArtist.genre,
+                monthly_listeners: selectedArtist.monthly_listeners
+            }),
         });
+    
         const data = await result.json();
         setResponseData(data.message);
         fetchArtists();
         setSelectedArtist(null);
     };
+    
 
     // function to delete an artist (DELETE request)
 
@@ -99,16 +130,16 @@ const Artist = () => {
             <div>
     {artists.map((artist) => (
         <div key={artist.id}>
-            <h3>{artist.name}</h3>
-            <p>Genre: {artist.genre}</p>
-            <p>Monthly Listeners: {artist.monthly_listeners}</p>
-            
-            <p><strong>Albums:</strong> {artist.albums ? artist.albums : "No albums"}</p>
-            <p><strong>Songs:</strong> {artist.songs ? artist.songs : "No songs"}</p>
-            
-            <button onClick={() => setSelectedArtist(artist)}>Edit</button>
-            <button onClick={() => handleDeleteArtist(artist.id)}>Delete</button>
-        </div>
+        <h3>{artist.name}</h3>
+        <p>Genre: {artist.genre}</p>
+        <p>Monthly Listeners: {artist.monthly_listeners}</p>
+        
+        <p><strong>Albums:</strong> {artist.albums ? artist.albums : "No albums"}</p>
+        <p><strong>Songs:</strong> {artist.songs ? artist.songs : "No songs"}</p>
+        
+        <button onClick={() => setSelectedArtist(artist)}>Edit</button>
+        <button onClick={() => handleDeleteArtist(artist.id)}>Delete</button>
+    </div>
     ))}
 </div>
 
