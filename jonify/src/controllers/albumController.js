@@ -23,11 +23,30 @@ exports.getAllAlbums = (req, res) => {
 
 exports.getAlbumByName = (req, res) => {
     const { name } = req.params;
-    connection.query('SELECT * FROM albums WHERE name = ?', [name], (err, results) => {
-        if (err) return res.status(500).json({ message: 'Error fetching album' });
-        res.status(200).json(results);
+    const sql = `
+        SELECT albums.id, albums.name AS album_name, albums.release_year, albums.num_listens, 
+               artists.name AS artist_name,
+               GROUP_CONCAT(DISTINCT songs.name ORDER BY songs.name ASC) AS songs
+        FROM albums
+        LEFT JOIN artists ON albums.artist_id = artists.id
+        LEFT JOIN songs ON songs.album_id = albums.id
+        WHERE albums.name = ?
+        GROUP BY albums.id;
+    `;
+
+    connection.query(sql, [name], (err, results) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error fetching album', error: err });
+        }
+        
+        if (results.length === 0) {
+            return res.status(404).json({ message: "Album not found" });
+        }
+
+        res.status(200).json(results[0]); // Return single album object instead of array
     });
 };
+
 
 
 exports.createAlbum = (req, res) => {

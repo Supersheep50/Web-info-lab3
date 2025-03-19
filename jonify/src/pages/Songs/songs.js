@@ -25,11 +25,12 @@ const Songs = () => {
                 album_id: selectedAlbumId  
             })   
         });
-
+    
         const dataq = await result.json();
         setResponseData(dataq.message);
         fetchSongs();
     };
+    
 
     // function to retrieve artists (GET Request)
 
@@ -38,7 +39,9 @@ const Songs = () => {
             // Fetch a specific song
             const result = await fetch(`http://localhost:3001/songs/search/${songName}`);
             const data = await result.json();
-            setSongs(data);
+            
+            // Ensure data is an array to prevent .map() errors
+            setSongs(Array.isArray(data) ? data : [data]);
         } else {
             // Fetch all songs if no name is entered
             const result = await fetch('http://localhost:3001/songs');
@@ -46,6 +49,9 @@ const Songs = () => {
             setSongs(data);
         }
     };
+    
+    
+    
     
 
     useEffect(() => {
@@ -125,15 +131,16 @@ const Songs = () => {
     {songs.map((song) => (
         <div key={song.id}>
             <h3>{song.song_name}</h3>
-            <p><strong>Release Year:</strong> {song.release_year}</p>
             <p><strong>Album:</strong> {song.album_name ? song.album_name : "No album"}</p>
             <p><strong>Artist:</strong> {song.artist_name ? song.artist_name : "Unknown artist"}</p>
-
+            <p><strong>Release Year:</strong> {song.release_year ? song.release_year : "Unknown"}</p>
+            
             <button onClick={() => setSelectedSong(song)}>Edit</button>
             <button onClick={() => handleDeleteSong(song.id)}>Delete</button>
         </div>
     ))}
 </div>
+
 
         </div>
     );

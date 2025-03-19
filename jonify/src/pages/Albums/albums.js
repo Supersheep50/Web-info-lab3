@@ -22,7 +22,9 @@ const Albums = () => {
             // Fetch a specific album
             const result = await fetch(`http://localhost:3001/albums/search/${albumName}`);
             const data = await result.json();
-            setAlbums(data);
+            
+            // Ensure albums is always an array
+            setAlbums(Array.isArray(data) ? data : [data]);  
         } else {
             // Fetch all albums if no name is entered
             const result = await fetch('http://localhost:3001/albums');
@@ -30,6 +32,7 @@ const Albums = () => {
             setAlbums(data);
         }
     };
+    
     
 
     // Runs on page load

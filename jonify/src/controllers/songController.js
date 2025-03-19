@@ -21,11 +21,31 @@ exports.getAllSongs = (req, res) => {
 
 exports.getSongByName = (req, res) => {
     const { name } = req.params;
-    connection.query('SELECT * FROM songs WHERE name = ?', [name], (err, results) => {
-        if (err) return res.status(500).json({ message: 'Error fetching song' });
-        res.status(200).json(results);
+    const sql = `
+        SELECT songs.id, songs.name AS song_name, 
+               albums.name AS album_name, albums.release_year,
+               artists.name AS artist_name
+        FROM songs
+        LEFT JOIN albums ON songs.album_id = albums.id
+        LEFT JOIN artists ON albums.artist_id = artists.id
+        WHERE songs.name = ?
+    `;
+
+    connection.query(sql, [name], (err, results) => {
+        if (err) {
+            console.error("Error fetching song:", err);
+            return res.status(500).json({ message: 'Error fetching song', error: err });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "Song not found" });
+        }
+
+        res.status(200).json(results[0]); // Return a single object instead of an array
     });
 };
+
+
 
 
 exports.createSong = (req, res) => {
