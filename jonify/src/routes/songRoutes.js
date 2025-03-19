@@ -3,6 +3,7 @@ const router = express.Router();
 const songController = require('../controllers/songController');
 
 router.get('/', songController.getAllSongs);
+router.get('/search/:name', songController.getSongByName);
 router.post('/', songController.createSong);
 router.put('/:id', songController.updateSong);
 router.delete('/:id', songController.deleteSong);

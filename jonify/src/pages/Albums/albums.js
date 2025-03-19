@@ -18,10 +18,19 @@ const Albums = () => {
 
     // Fetch albums
     const fetchAlbums = async () => {
-        const result = await fetch('http://localhost:3001/albums');
-        const data = await result.json();
-        setAlbums(data);
+        if (albumName.trim() !== "") {
+            // Fetch a specific album
+            const result = await fetch(`http://localhost:3001/albums/search/${albumName}`);
+            const data = await result.json();
+            setAlbums(data);
+        } else {
+            // Fetch all albums if no name is entered
+            const result = await fetch('http://localhost:3001/albums');
+            const data = await result.json();
+            setAlbums(data);
+        }
     };
+    
 
     // Runs on page load
     useEffect(() => {
@@ -101,14 +110,20 @@ const Albums = () => {
 
             {/* List of albums with edit and delete buttons */}
             <div>
-                {albums.map((album) => (
-                    <div key={album.id}>
-                        <h3>{album.name}</h3>
-                        <button onClick={() => setSelectedAlbum(album)}>Edit</button>
-                        <button onClick={() => handleDeleteAlbum(album.id)}>Delete</button>
-                    </div>
-                ))}
-            </div>
+    {albums.map((album) => (
+        <div key={album.id}>
+            <h3>{album.album_name}</h3>
+            <p><strong>Artist:</strong> {album.artist_name}</p>
+            <p><strong>Release Year:</strong> {album.release_year}</p>
+            <p><strong>Number of Listens:</strong> {album.num_listens}</p>
+            <p><strong>Songs:</strong> {album.songs ? album.songs : "No songs"}</p>
+
+            <button onClick={() => setSelectedAlbum(album)}>Edit</button>
+            <button onClick={() => handleDeleteAlbum(album.id)}>Delete</button>
+        </div>
+    ))}
+</div>
+
         </div>
     );
 };

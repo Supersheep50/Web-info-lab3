@@ -1,11 +1,27 @@
 const connection = require('../config/db');
 
 exports.getAllArtists = (req, res) => {
-    connection.query('SELECT * FROM artists', (err, results) => {
-        if (err) return res.status(500).json({ message: 'Error getting artists' });
-        res.status(200).json(results);
+    const sql = `
+        SELECT artists.id, artists.name, artists.monthly_listeners, artists.genre,
+               GROUP_CONCAT(DISTINCT albums.name ORDER BY albums.name ASC) AS albums,
+               GROUP_CONCAT(DISTINCT songs.name ORDER BY songs.name ASC) AS songs
+        FROM artists
+        LEFT JOIN albums ON albums.artist_id = artists.id
+        LEFT JOIN songs ON songs.album_id = albums.id
+        GROUP BY artists.id;
+    `;
+
+    connection.query(sql, (err, results) => {
+        if (err) {
+            res.status(500).json({ message: "Error retrieving artists", error: err });
+        } else {
+            res.status(200).json(results);
+        }
     });
 };
+
+
+
 
 exports.createArtist = (req, res) => {
     console.log("Received request to create artist:", req.body); // Debugging

@@ -29,10 +29,17 @@ const Artist = () => {
     // function to retrieve artists (GET request)
 
     const fetchArtists = async () => {
-        const result = await fetch('http://localhost:3001/artists');
+        let url = 'http://localhost:3001/artists';
+        if (artistName.trim() !== '') {
+            url += `?name=${encodeURIComponent(artistName)}`;
+        }
+    
+        const result = await fetch(url);
         const data = await result.json();
         setArtists(data);
     };
+    
+    
 
     // function to update an artist (PUT request)
     const handleUpdateArtist = async () => {
@@ -88,15 +95,24 @@ const Artist = () => {
             <div> Response: {responseData} </div>
 
             {/* list of artists with update and delete buttons */}
+            {/* List of artists with details */}
             <div>
-                {artists.map((artist) => (
-                    <div key = {artist.id}>
-                        <p>{artist.name}</p>
-                        <button onClick = {() => setSelectedArtist(artist)}>Edit</button>
-                        <button onClick = {() => handleDeleteArtist(artist.id)}>Delete</button>
-                    </div>
-                ))}
-                </div>
+    {artists.map((artist) => (
+        <div key={artist.id}>
+            <h3>{artist.name}</h3>
+            <p>Genre: {artist.genre}</p>
+            <p>Monthly Listeners: {artist.monthly_listeners}</p>
+            
+            <p><strong>Albums:</strong> {artist.albums ? artist.albums : "No albums"}</p>
+            <p><strong>Songs:</strong> {artist.songs ? artist.songs : "No songs"}</p>
+            
+            <button onClick={() => setSelectedArtist(artist)}>Edit</button>
+            <button onClick={() => handleDeleteArtist(artist.id)}>Delete</button>
+        </div>
+    ))}
+</div>
+
+
              </div>
     );
 };  

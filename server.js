@@ -1,93 +1,18 @@
-const mysql = require('mysql2');
 const express = require('express');
 const cors = require('cors');
+const artistRoutes = require('./jonify/src/routes/artistRoutes');
+const albumRoutes = require('./jonify/src/routes/albumRoutes');
+const songRoutes = require('./jonify/src/routes/songRoutes');
+require('./jonify/src/config/db'); // Ensures DB connection initializes
 
 const app = express();
 app.use(cors());
-app.use(express.json()); // handling json data from react
+app.use(express.json());
 
-// connect to phpadmin db
-
-const connection = mysql.createConnection({
-
-    host: 'webcourse.cs.nuim.ie',
-    user: 'p250126',
-    password: 'OhV9vohSeequeuya',
-    database: 'cs230_p250126'
-});
-
-connection.connect(err => {
-
-if(err){
-    console.log("Connection failed", err);
-} else {
-    console.log("Connected to database");
-}
-});
-
-// insert an artist 
-
-app.post('/artists', (req, res) => {
-    const {name, monthly_listeners, genre} = req.body;
-    const sql = 'INSERT INTO artists (name, monthly_listeners, genre) VALUES (?, ?, ?)';
-    connection.query(sql, [name, monthly_listeners, genre], (err, results) => {
-        if(err){
-            res.status(500).json({message: 'Error inserting artist'});
-        } else {
-            res.status(200).json({message: 'Artist inserted'});
-        }}
-    );
-});
-
-// get all artists
-
-app.get('/artists', (req, res) => {
-    connection.query('SELECT * FROM artists', (err, results) => {
-        if(err){
-            res.status(500).json({message: 'Error getting artists'});
-        } else {
-            res.status(200).json(results);
-        }
-    });
-});
-
-// update an artist
-app.put('/artists/:id', (req, res) => {
-    const {name, monthly_listeners, genre} = req.body;
-    const {id } = req.params;
-    const sql = 'UPDATE artists SET name = ?, monthly_listeners = ?, genre = ? WHERE id = ?';
-    connection.query(sql, [name, monthly_listeners, genre, id], (err, results) => {
-        if(err){
-            res.status(500).json({message: 'Error updating artist'});
-        } else {
-            res.status(200).json({message: 'Artist updated'});
-        }
-    });
-
-});
-
-// delete an artist 
-
-app.delete('/artists/:id', (req, res) => {
-    const { id } = req.params;
-    connection.query('DELETE FROM artists WHERE id = ?', [id], (err, result) => {
-        if (err) return res.status(500).json({ err: err.message });
-        res.json({ message: 'Artist deleted' });
-    });
-});
-
-// starting the server 
+app.use('/artists', artistRoutes);
+app.use('/albums', albumRoutes);
+app.use('/songs', songRoutes);
 
 app.listen(3001, () => {
-    console.log('Server started');
+    console.log('Server started on port 3001');
 });
-
-
-
-
-
-
-
-
-
-
