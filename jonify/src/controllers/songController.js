@@ -64,14 +64,16 @@ exports.createSong = (req, res) => {
 
 
 exports.updateSong = (req, res) => {
-    const { name, release_date, genre } = req.body;
+    const { name, release_year, album_id } = req.body; 
     const { id } = req.params;
-    const sql = 'UPDATE songs SET name = ?, release_date = ?, genre = ? WHERE id = ?';
-    connection.query(sql, [name, release_date, genre, id], (err, results) => {
-        if (err) return res.status(500).json({ message: 'Error updating song' });
-        res.status(200).json({ message: 'Song updated' });
+
+    const sql = 'UPDATE songs SET name = ?, release_year = ?, album_id = ? WHERE id = ?';
+    connection.query(sql, [name, release_year, album_id, id], (err, results) => {
+        if (err) return res.status(500).json({ message: 'Error updating song', error: err });
+        res.status(200).json({ message: 'Song updated successfully' });
     });
 };
+
 
 exports.deleteSong = (req, res) => {
     const { id } = req.params;

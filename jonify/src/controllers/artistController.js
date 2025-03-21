@@ -21,8 +21,18 @@ exports.getAllArtists = (req, res) => {
 };
 
 exports.getArtistByName = (req, res) => {
-    const artistName = req.params.name; // Get artist name from URL
-    const query = `SELECT * FROM artists WHERE name = ?`;
+    const artistName = req.params.name; 
+
+    const query = `
+        SELECT artists.id, artists.name, artists.genre, artists.monthly_listeners,
+               GROUP_CONCAT(DISTINCT albums.name ORDER BY albums.name ASC) AS albums,
+               GROUP_CONCAT(DISTINCT songs.name ORDER BY songs.name ASC) AS songs
+        FROM artists
+        LEFT JOIN albums ON albums.artist_id = artists.id
+        LEFT JOIN songs ON songs.album_id = albums.id
+        WHERE artists.name = ?
+        GROUP BY artists.id;
+    `;
 
     connection.query(query, [artistName], (err, results) => {
         if (err) {
@@ -34,7 +44,12 @@ exports.getArtistByName = (req, res) => {
             return res.status(404).json({ message: "Artist not found" });
         }
 
-        res.json(results);
+      
+        const artist = results[0];
+        artist.albums = artist.albums ? artist.albums.split(', ') : [];
+        artist.songs = artist.songs ? artist.songs.split(', ') : [];
+
+        res.status(200).json(artist);
     });
 };
 
@@ -43,13 +58,14 @@ exports.getArtistByName = (req, res) => {
 
 
 
+
 exports.createArtist = (req, res) => {
-    console.log("Received request to create artist:", req.body); // Debugging
+    console.log("Received request to create artist:", req.body); 
     const { name, monthly_listeners, genre } = req.body;
     const sql = 'INSERT INTO artists (name, monthly_listeners, genre) VALUES (?, ?, ?)';
     connection.query(sql, [name, monthly_listeners, genre], (err, results) => {
         if (err) {
-            console.error("Error inserting artist:", err);  // Log the full error
+            console.error("Error inserting artist:", err); 
             return res.status(500).json({ message: 'Error inserting artist', error: err });
         }
         res.status(200).json({ message: 'Artist inserted' });

@@ -16,20 +16,33 @@ const Songs = () => {
     // create a song / post request
 
     const handleCreateSong = async () => {
+        if (!songName || !songYear || !selectedAlbumId) {
+            setResponseData("❌ Missing required fields");
+            console.error("Error: Missing required fields", { songName, songYear, selectedAlbumId });
+            return;
+        }
+    
+        const payload = {
+            name: songName,
+            release_year: songYear,
+            album_id: selectedAlbumId
+        };
+    
+        console.log("Creating Song with:", JSON.stringify(payload, null, 2));
+    
         const result = await fetch('http://localhost:3001/songs', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                name: songName,
-                release_year: songYear,
-                album_id: selectedAlbumId  
-            })   
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
     
         const dataq = await result.json();
         setResponseData(dataq.message);
         fetchSongs();
     };
+    
+    
+    
     
 
     // function to retrieve artists (GET Request)
@@ -67,17 +80,34 @@ const Songs = () => {
     // function to update a song (PUT request)
 
     const handleUpdateSong = async () => {
-        if(!selectedSong) return;
-        const result = await fetch(`http://localhost:3001/songs/${selectedSong.id}`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: songName}),
-        });
-        const data = await result.json();
-        setResponseData(data.message);
-        fetchSongs();
-        setSelectedSong(null);
+        if (!selectedSong) return;
+    
+        const updatedSong = {
+            name: songName,
+            release_year: songYear,
+            album_id: selectedAlbumId
+        };
+    
+        console.log("Updating Song with:", JSON.stringify(updatedSong, null, 2));
+    
+        try {
+            const result = await fetch(`http://localhost:3001/songs/${selectedSong.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedSong),
+            });
+    
+            const data = await result.json();
+            if (!result.ok) throw new Error(data.message || "Error updating song");
+    
+            setResponseData("✅ Song updated successfully");
+            fetchSongs();
+            setSelectedSong(null);
+        } catch (error) {
+            setResponseData(`❌ ${error.message}`);
+        }
     };
+    
 
     // function to delete a song (DELETE request)
 
@@ -100,20 +130,38 @@ const Songs = () => {
 
         <div>
 
-            <h1>Songs</h1>
+        <h1>Songs</h1>
 
-            {/* form to create a song */}
-            <input type = "text" placeholder = "Song name" value = {songName} onChange = {(e) => setSongName(e.target.value)} placeholder = 'Enter song name'/>
+        {/* form to create a song */}
+        <input
+    type="text"
+    placeholder="Enter Song Name"
+    value={songName}
+    onChange={(e) => setSongName(e.target.value)}
+/>
+
+<input
+    type="text"
+    placeholder="Enter Release Year"
+    value={songYear}
+    onChange={(e) => setSongYear(e.target.value)}
+/>
+
+
 
               
-                        {/* Album dropdown */}
-            <label>Pick an Album:</label>
-            <select value={albumId} onChange={(e) => setAlbumId(e.target.value)}>
-                <option value="">Select an album</option>
-                {albums.map((album) => (
-                    <option key={album.id} value={album.id}>{album.name}</option>
-                ))}
-            </select>
+        {/* Album dropdown */}
+         <select value={selectedAlbumId} onChange={(e) => setSelectedAlbumId(e.target.value)}>
+         <option value="">Select an album</option>
+        {albums.map((album) => (
+        <option key={album.id} value={album.id}>
+        {album.album_name} - {album.artist_name}
+        </option>
+  ))}
+        </select>
+
+
+
 
 
             {/* crud buttons */}
@@ -135,7 +183,15 @@ const Songs = () => {
             <p><strong>Artist:</strong> {song.artist_name ? song.artist_name : "Unknown artist"}</p>
             <p><strong>Release Year:</strong> {song.release_year ? song.release_year : "Unknown"}</p>
             
-            <button onClick={() => setSelectedSong(song)}>Edit</button>
+            <button onClick={() => {
+    setSelectedSong(song); 
+    setSongName(song.song_name || ""); 
+    setSongYear(song.release_year || ""); 
+    setSelectedAlbumId(song.album_id || "");
+}}>
+    Edit
+</button>
+
             <button onClick={() => handleDeleteSong(song.id)}>Delete</button>
         </div>
     ))}

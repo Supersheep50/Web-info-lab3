@@ -1,13 +1,12 @@
-/* 🎵 Global Styles */
+
 body {
-    background-color: black; /* Set background to full black */
-    color: white; /* Ensure text is white */
+    background-color: black; 
+    color: white; 
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
 }
 
-/* 🎤 Navbar */
 nav {
     width: 100%;
     height: 60px;
@@ -37,21 +36,19 @@ nav a:hover {
     color: black;
 }
 
-/* 🎤 Main Content */
 main {
-    margin-top: 80px; /* Push content down below the navbar */
-    padding: 40px; /* More spacing */
+    margin-top: 80px; 
+    padding: 40px; 
 }
 
-/* 🎶 Input Fields */
 input, select {
-    background: white; /* Make input fields white */
-    color: black; /* Black text for readability */
+    background: white; 
+    color: black; 
     border: 1px solid #1DB954;
     padding: 10px;
     border-radius: 5px;
-    width: 100%; /* Full width for better layout */
-    max-width: 300px; /* Prevents it from being too large */
+    width: 100%; 
+    max-width: 300px; 
 }
 
 input:focus, select:focus {
@@ -59,17 +56,16 @@ input:focus, select:focus {
     border-color: #1DB954;
 }
 
-/* 🎵 Buttons */
 button {
     background: #1DB954;
     color: black;
     border: none;
-    padding: 12px 20px; /* More padding */
+    padding: 12px 20px; 
     border-radius: 5px;
     font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
-    margin: 5px; /* Spacing between buttons */
+    margin: 5px; 
 }
 
 button:hover {
@@ -77,22 +73,22 @@ button:hover {
     color: #1DB954;
 }
 
-/* 🎧 Artist, Album, Song Cards */
+
 .card {
     background: #181818;
     padding: 20px;
-    margin: 20px 0; /* More spacing */
+    margin: 20px 0; 
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-/* 🎹 Edit & Delete Buttons */
+
 .edit-btn, .delete-btn {
     margin-right: 5px;
     background: transparent;
     border: 1px solid #1DB954;
     color: #1DB954;
-    padding: 8px 12px; /* More padding */
+    padding: 8px 12px; 
 }
 
 .edit-btn:hover, .delete-btn:hover {
@@ -100,16 +96,16 @@ button:hover {
     color: black;
 }
 
-/* Center the logo on the homepage */
+
 .home-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 80vh; /* Adjust for better positioning */
+    height: 80vh; 
 }
 
 .logo {
-    width: 500px; /* Adjust size as needed */
+    width: 500px;
     height: auto;
     padding-top: 150px;
 }
